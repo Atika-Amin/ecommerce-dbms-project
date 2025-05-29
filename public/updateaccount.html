@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Account - commMarket</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" href="updateaccount.css"> <!-- Link to the CSS for update account page -->
+</head>
+
+<body>
+    <header>
+        <div id="navbar">
+            <h1 class="logo">commMarket</h1>
+
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="profile.html" id="profile-link">Profile</a></li>
+                    <li><a href="homepage.html" id="home-link">Home</a></li>
+                    <li><a href="cart.html" id="cart-link">Cart</a></li>
+                    <li><a href="sell.html" id="sell-link">Sell</a></li>
+                    <li><a href="login.html">Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="update-account-section">
+            <h2>Update Your Account</h2>
+
+            <form id="update-account-form">
+                <input type="hidden" id="userId" name="userId"> <!-- Hidden field for user ID -->
+                <div class="input-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required placeholder="Enter new username">
+                </div>
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required placeholder="Enter new password">
+                </div>
+                <button type="submit" class="btn">Update</button>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2024 commMarket. All rights reserved.</p>
+    </footer>
+
+
+    <script>
+        // Extract user ID from the URL query parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('id');
+
+        if (!userId) {
+            window.location.href = 'login.html'; // Redirect to login if no user ID
+        } else {
+            // Set the user ID in the hidden input field
+            document.getElementById('userId').value = userId;
+        }
+
+        // Handle form submission
+        document.getElementById('update-account-form').addEventListener('submit', function (e) {
+            e.preventDefault(); // Prevent the default form submission
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            fetch(`http://localhost:3000/update-account/${userId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username, password }),
+            })
+
+            // Send the update request to the backend
+            fetch(`/update-account/${userId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username, password }),
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to update account');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    alert(data.message || 'Account updated successfully');
+                    window.location.href = `profile.html?id=${userId}`; // Redirect to profile page
+                })
+                .catch(error => {
+                    console.error('Error updating account:', error);
+                    alert('Error updating account');
+                });
+        });
+    </script>
+</body>
+
+</html>

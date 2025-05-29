@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile - commMarket</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" href="profile.css">
+</head>
+
+<body>
+    <header>
+        <div id="navbar">
+            <h1 class="logo">commMarket</h1>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="profile.html" id="profile-link">Profile</a></li>
+                    <li><a href="homepage.html" id="home-link">Home</a></li>
+                    <li><a href="cart.html" id="cart-link">Cart</a></li>
+                    <li><a href="sell.html" id="sell-link">Sell</a></li>
+                    <li><a href="login.html">Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="profile-container">
+            <h1>Your Profile</h1>
+            <p>Username: <span id="username"></span></p>
+            <p>Email: <span id="email"></span></p>
+            <button class="btn update-account-btn" onclick="updateAccount()">Update Account</button>
+            <button class="btn update-account-btn" id="deleteAccountBtn">Delete Account</button>
+
+        </div>
+
+        <h2>Your Products</h2>
+        <section class="products-section" id="user-products">
+            <!-- Product Cards will be injected here by JS -->
+        </section>
+    </main>
+
+    <script>
+        // Extract user ID from the URL query parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('id');
+
+        if (!userId) {
+            window.location.href = 'login.html'; // Redirect to login if no user ID
+        }
+
+        // Check if the user session is active
+        fetch('/check-session')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Session validation failed');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.loggedIn) {
+                    // Update navbar links with the user ID
+                    document.getElementById('profile-link').href = `profile.html?id=${userId}`;
+                    document.getElementById('home-link').href = `homepage.html?id=${userId}`;
+                    document.getElementById('cart-link').href = `cart.html?id=${userId}`;
+                    document.getElementById('sell-link').href = `sell.html?id=${userId}`;
+                } else {
+                    window.location.href = 'login.html';
+                }
+            })
+            .catch(err => {
+                console.error('Error checking session:', err);
+                window.location.href = 'login.html';
+            });
+
+        // Fetch user info
+        fetch(`/user-info/${userId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch user info');
+                }
+                return response.json();
+            })
+            .then(data => {
+                document.getElementById('username').textContent = data.username;
+                document.getElementById('email').textContent = data.email;
+            })
+            .catch(error => {
+                console.error('Error fetching user info:', error);
+                alert('Error fetching user info');
+            });
+
+        // Fetch user's products
+        fetch(`/user-products/${userId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch products');
+                }
+                return response.json();
+            })
+            .then(data => {
+                const productsContainer = document.getElementById('user-products');
+
+                if (data.products.length === 0) {
+                    productsContainer.innerHTML = "<p>No products listed yet.</p>";
+                } else {
+                    data.products.forEach(product => {
+                        const productCard = document.createElement('div');
+                        productCard.classList.add('product-card');
+
+                        productCard.innerHTML = `
+                            <h3>${product.name}</h3>
+                            <p>Condition: ${product.product_condition}</p>
+                            <p>Price: tk${product.price}</p>
+                            <button class="btn update-btn" onclick="updateProduct(${product.id})">Update</button>
+                            <button class="btn delete-btn" onclick="deleteProduct(${product.id})">Delete</button>
+                        `;
+
+                        productsContainer.appendChild(productCard);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching user products:', error);
+                alert('Error fetching products');
+            });
+
+        // Function to handle product update redirection
+        function updateProduct(productId) {
+            window.location.href = `updateforsell.html?id=${productId}`;
+        }
+
+        // Function to delete a product
+        function deleteProduct(productId) {
+            const confirmDelete = confirm('Are you sure you want to delete this product?');
+            if (confirmDelete) {
+                fetch(`/delete-product/${productId}`, { method: 'DELETE' })
+                    .then(response => {
+                        if (response.ok) {
+                            alert('Product deleted successfully');
+                            location.reload();
+                        } else {
+                            alert('Failed to delete product');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error deleting product:', error);
+                        alert('Error deleting product');
+                    });
+            }
+        }
+
+        //update account
+        // Function to redirect to the update account page
+        function updateAccount() {
+            window.location.href = `updateaccount.html?id=${userId}`; // Redirect to update account page with user ID
+        }
+
+        document.getElementById('deleteAccountBtn').addEventListener('click', function() {
+    // Use the dynamically retrieved user ID from the URL
+    const userId = urlParams.get('id'); // Get the user ID from the URL parameters
+
+    if (confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
+        fetch(`/delete-user/${userId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                alert('Account deleted successfully.');
+                window.location.href = '/login'; // Redirect to login page or home page
+            } else {
+                alert('Error deleting account. Please try again.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while deleting your account.');
+        });
+    }
+});
+    </script>
+
+</body>
+
+</html>

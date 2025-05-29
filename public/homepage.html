@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>commMarket</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" href="homepage.css">
+</head>
+<body>
+    <header>
+        <div id="navbar">
+            <h1 class="logo">commMarket</h1>
+            <!-- <div class="search-bar">
+                <input type="text" placeholder="Search products..." class="search-input">
+                <button class="search-btn"><i class="fa fa-search"></i></button>
+            </div> -->
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="profile.html" id="profile-link">Profile</a></li>
+                    <li><a href="homepage.html" id="home-link">Home</a></li>
+                    <li><a href="cart.html" id="cart-link">Cart</a></li>
+                    <li><a href="sell.html" id="sell-link">Sell</a></li>
+                    <li><a href="login.html">Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <h1>Welcome to CommMarket!</h1>
+        <section class="products-section" id="product-list"></section>
+    </main>
+
+    <footer>
+        <p>© 2024 commMarket. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Extract user ID from the URL query parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('id');
+
+        // Check if the user session is active
+        fetch('/check-session')
+            .then(response => response.json())
+            .then(data => {
+                if (data.loggedIn) {
+                   
+
+                    // If user ID exists in the URL, update navbar links with the user ID
+                    if (userId) {
+                        document.getElementById('profile-link').href = `profile.html?id=${userId}`;
+                        document.getElementById('home-link').href = `homepage.html?id=${userId}`;
+                        document.getElementById('cart-link').href = `cart.html?id=${userId}`;
+                        document.getElementById('sell-link').href = `sell.html?id=${userId}`;
+                    }
+                } else {
+                    // Redirect to login if session is not active
+                    window.location.href = '/login';
+                }
+            })
+            .catch(err => {
+                console.error('Error checking session:', err);
+                window.location.href = '/login';
+            });
+
+        // Fetch products after page loads
+        fetch('/products')
+            .then(response => response.json())
+            .then(data => {
+                const productList = document.getElementById('product-list');
+                data.forEach(product => {
+                    const productDiv = document.createElement('div');
+                    productDiv.classList.add('product-card');
+
+                    const buyButton = `<button class="buy-btn" onclick="buyProduct('${product.id}')">Buy</button>`;
+
+                    productDiv.innerHTML = `
+                        <img src="${product.image_path}" alt="${product.name}">
+                        <h2>${product.name}</h2>
+                        <p>Price: tk${product.price}</p> 
+                        <p>Condition: ${product.product_condition}</p>
+                        <p>Contact Info: ${product.contact_info}</p>
+                        ${buyButton}
+                    `;
+                    productList.appendChild(productDiv);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching products:', error);
+            });
+
+            function buyProduct(productId) {
+    const userId = urlParams.get('id'); // Get the user ID from the URL
+
+    fetch('/add-to-cart', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId, productId })
+    })
+    .then(response => {
+        if (response.ok) {
+            window.location.href = `cart.html?id=${userId}`; // Redirect to the cart page
+        } else {
+            return response.text().then(text => {
+                console.error(`Error adding product to cart: ${text}`); // Log the error response
+                throw new Error(`Error adding product to cart: ${text}`);
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while adding to cart.');
+    });
+}
+    </script>
+</body>
+</html>

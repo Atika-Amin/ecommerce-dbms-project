@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Product - commMarket</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" href="updateforsell.css"> <!-- Link to the CSS for update page -->
+</head>
+
+<body>
+    <header>
+        <div id="navbar">
+            <h1 class="logo">commMarket</h1>
+            <div class="search-bar">
+                <input type="text" placeholder="Search products..." class="search-input">
+                <button class="search-btn"><i class="fa fa-search"></i></button>
+            </div>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="profile.html" id="profile-link">Profile</a></li>
+                    <li><a href="homepage.html" id="home-link">Home</a></li>
+                    <li><a href="cart.html" id="cart-link">Cart</a></li>
+                    <li><a href="sell.html" id="sell-link">Sell</a></li>
+                    <li><a href="login.html">Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="sell-section">
+            <h2>Update Your Product</h2>
+
+            <form id="edit-product-form" enctype="multipart/form-data">
+                <div class="input-group">
+                    <label for="product-name">Product Name</label>
+                    <input type="text" id="product-name" name="product-name" required placeholder="Enter product name">
+                </div>
+                <div class="input-group">
+                    <label for="price">Price</label>
+                    <input type="number" id="price" name="price" required placeholder="Enter product price" step="0.01">
+                </div>
+                <div class="input-group">
+                    <label for="condition">Condition</label>
+                    <select id="condition" name="condition" required>
+                        <option value="new">New</option>
+                        <option value="used">Used</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="product-image">Product Image</label>
+                    <input type="file" id="product-image" name="product-image" accept="image/*">
+                </div>
+                <div class="input-group">
+                    <label for="contact-info">Contact Information</label>
+                    <input type="text" id="contact-info" name="contact-info" required
+                        placeholder="Enter your contact info">
+                </div>
+                <button type="submit" class="btn">Update Product</button>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2024 commMarket. All rights reserved.</p>
+    </footer>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = urlParams.get('id');
+        const update = urlParams.get('update');
+
+        if (!productId) {
+            window.location.href = 'homepage.html'; // Redirect to homepage if no product ID
+        }
+
+        // Fetch product details for updating
+        if (update === 'true') {
+            fetch(`http://localhost:3000/api/products/${productId}`)
+                .then(response => response.json())
+                .then(product => {
+                    if (product.error) {
+                        alert(product.error);
+                        return;
+                    }
+
+                    // Prefill form fields with existing product data
+                    document.getElementById('product-name').value = product.name;
+                    document.getElementById('price').value = product.price;
+                    document.getElementById('condition').value = product.product_condition;
+                    document.getElementById('contact-info').value = product.contact_info;
+
+                    // Set form action for update request
+                    document.getElementById('edit-product-form').action = `/api/products/${productId}`;
+                })
+                .catch(err => console.error('Error fetching product for update:', err));
+        }
+
+        function updateProduct(productId, userId) {
+        window.location.href = `updateforsell.html?id=${productId}&userId=${userId}&update=true`;
+    }
+
+        // Handle form submission for updates
+        document.getElementById('edit-product-form').addEventListener('submit', function (e) {
+            e.preventDefault(); // Prevent the default form submission
+
+            const formData = new FormData(this); // Create a FormData object from the form
+
+            fetch(`/api/products/${productId}`, {
+                method: 'PUT', // Use PUT method for updating
+                body: formData, // Send the form data
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json(); // Parse the JSON response
+                })
+                .then(data => {
+                    if (data.error) {
+                        alert(data.error); // Show error message if any
+                    } else {
+                        alert(data.message || 'Product updated successfully'); // Show success message
+                        // Redirect to homepage or another page after successful update
+
+                        const userId = urlParams.get('userId');
+
+                        if (userId) {
+                            window.location.href = `homepage.html?refresh=true&id=${userId}`;
+                        } else {
+                            console.error('User  ID is missing. Unable to redirect to user-specific homepage.');
+                            window.location.href = 'homepage.html'; // Fallback to general homepage
+                        }
+
+                    }
+                })
+                .catch(err => console.error('Error updating product:', err)); // Log any errors
+        });
+    </script>
+
+
+
+</body>
+
+</html>

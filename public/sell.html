@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sell Product - commMarket</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" href="sell.css"> <!-- Link to the new CSS for sell page -->
+</head>
+<body>
+    <header>
+        <div id="navbar">
+            <h1 class="logo">commMarket</h1>
+            <div class="search-bar">
+                <input type="text" placeholder="Search products..." class="search-input">
+                <button class="search-btn"><i class="fa fa-search"></i></button>
+            </div>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="profile.html" id="profile-link">Profile</a></li>
+                    <li><a href="homepage.html" id="home-link">Home</a></li>
+                    <li><a href="cart.html" id="cart-link">Cart</a></li>
+                    <li><a href="sell.html" id="sell-link">Sell</a></li>
+                    <li><a href="login.html">Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="sell-section">
+            <h2>Sell Your Product</h2>
+            <form action="/sell" method="post" enctype="multipart/form-data">
+                <div class="input-group">
+                    <label for="product-name">Product Name</label>
+                    <input type="text" id="product-name" name="product-name" required placeholder="Enter product name">
+                </div>
+
+                <div class="input-group">
+                    <label for="price">Price</label>
+                    <input type="number" id="price" name="price" required placeholder="Enter product price" step="0.01">
+                </div>
+
+                <div class="input-group">
+                    <label for="condition">Condition</label>
+                    <select id="condition" name="condition" required>
+                        <option value="new">New</option>
+                        <option value="used">Used</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="product-image">Product Image</label>
+                    <input type="file" id="product-image" name="product-image" accept="image/*" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="contact-info">Contact Information</label>
+                    <input type="text" id="contact-info" name="contact-info" required placeholder="Enter your contact info">
+                </div>
+
+                <button type="submit" class="btn">Submit Product</button>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2024 commMarket. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Extract product ID and update flag from the URL query parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = urlParams.get('id');
+        const update = urlParams.get('update');
+    
+        // Check if the product ID exists
+        if (!productId) {
+            window.location.href = 'homepage.html'; // Redirect to homepage if no product ID
+        }
+    
+        // Check if the user session is active
+        fetch('/check-session')
+            .then(response => response.json())
+            .then(data => {
+                if (data.loggedIn) {
+                    // If user session is active, update navbar links with user ID (if present)
+                    const userId = urlParams.get('userId');
+                    if (userId) {
+                        document.getElementById('profile-link').href = `profile.html?id=${userId}`;
+                        document.getElementById('home-link').href = `homepage.html?id=${userId}`;
+                        document.getElementById('cart-link').href = `cart.html?id=${userId}`;
+                        document.getElementById('sell-link').href = `sell.html?id=${userId}`;
+                    }
+                } else {
+                    // Redirect to login if session is not active
+                    window.location.href = '/login';
+                }
+            })
+            .catch(err => {
+                console.error('Error checking session:', err);
+                window.location.href = '/login';
+            });
+    
+        // Prefill form data for updates if the update flag is true
+        if (update === 'true') {
+            document.querySelector('h2').textContent = 'Update Product'; // Change heading to indicate update
+            fetch(`http://localhost:3000/api/products/${productId}`)
+                .then(response => response.json())
+                .then(product => {
+                    if (product.error) {
+                        alert(product.error);
+                        return;
+                    }
+    
+                    // Prefill form fields with existing product data
+                    document.getElementById('product-name').value = product.name;
+                    document.getElementById('price').value = product.price;
+                    document.getElementById('condition').value = product.product_condition;
+                    document.getElementById('contact-info').value = product.contact_info;
+    
+                    // Set form action for update request
+                    document.querySelector('form').action = `/update-product/${productId}`;
+                })
+                .catch(err => console.error('Error fetching product for update:', err));
+        }
+    </script>
+    
+
+</body>
+</html>
+

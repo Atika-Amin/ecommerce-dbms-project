@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cart - commMarket</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" href="cart.css">
+</head>
+<body>
+    <header>
+        <div id="navbar">
+            <h1 class="logo">commMarket</h1>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="profile.html" id="profile-link">Profile</a></li>
+                    <li><a href="homepage.html" id="home-link">Home</a></li>
+                    <li><a href="cart.html" id="cart-link">Cart</a></li>
+                    <li><a href="sell.html" id="sell-link">Sell</a></li>
+                    <li><a href="login.html">Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <h1>Your Cart</h1>
+        <section class="cart-section" id="cart-list">
+            <!-- Cart items will be displayed here -->
+        </section>
+        <section class="cart-summary">
+            <div class="total">
+                <h3>Total:</h3>
+                <p id="total-price">TK 0</p>
+            </div>
+            <button class="checkout-btn" onclick="checkout()">Buy</button>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2024 commMarket. All rights reserved.</p>
+    </footer>
+    <script>
+        // Extract user ID from the URL query parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('id');
+    
+        if (!userId) {
+            window.location.href = 'login.html'; // Redirect to login if no user ID
+        }
+    
+        // Check if the user session is active
+        fetch('/check-session')
+            .then(response => response.json())
+            .then(data => {
+                if (data.loggedIn) {
+                    // Update navbar links with the user ID
+                    document.getElementById('profile-link').href = `profile.html?id=${userId}`;
+                    document.getElementById('home-link').href = `homepage.html?id=${userId}`;
+                    document.getElementById('cart-link').href = `cart.html?id=${userId}`;
+                    document.getElementById('sell-link').href = `sell.html?id=${userId}`;
+                } else {
+                    window.location.href = '/login';
+                }
+            })
+            .catch(err => {
+                console.error('Error checking session:', err);
+                window.location.href = '/login';
+            });
+    
+        // Fetch cart items after page loads
+fetch(`/cart/${userId}`)
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Cart Data:', data); // Log the fetched cart data
+        const cartList = document.getElementById('cart-list');
+        let totalPrice = 0;
+
+        // Check if data is an array and has items
+        if (Array.isArray(data) && data.length > 0) {
+            data.forEach(item => {
+                const cartItemDiv = document.createElement('div');
+                cartItemDiv.classList.add('cart-item');
+
+                // Ensure you have the correct properties
+                const productId = item.product_id; // Assuming this is the correct property name
+                const price = parseFloat(item.price); // Convert price to a number
+                const quantity = item.quantity; // Assuming this is the correct property name
+
+                console.log('Product ID:', productId, 'Price:', price, 'Quantity:', quantity); // Log each item's details
+
+                // Check if price is a number before calling toFixed
+                if (!isNaN(price)) {
+                    cartItemDiv.innerHTML = `
+                        <h2>Product ID: ${productId}</h2>
+                        <p>Price: TK ${price.toFixed(2)}</p>
+                        <p>Quantity: ${quantity}</p>
+                        <button class="remove-btn" onclick="removeFromCart('${productId}')">Remove</button>
+                    `;
+                } else {
+                    console.error('Price is not a number:', price);
+                    cartItemDiv.innerHTML = `
+                        <h2>Product ID: ${productId}</h2>
+                        <p>Price: TK N/A</p>
+                        <p>Quantity: ${quantity}</p>
+                        <button class="remove-btn" onclick="removeFromCart('${productId}')">Remove</button>
+                    `;
+                }
+
+                cartList.appendChild(cartItemDiv);
+                totalPrice += (!isNaN(price) ? price : 0) * quantity; // Calculate total price safely
+            });
+
+            document.getElementById('total-price').textContent = `TK ${totalPrice.toFixed(2)}`;
+        } else {
+            cartList.innerHTML = '<p>No items in cart.</p>'; // Handle empty cart
+        }
+    })
+    .catch(error => {
+        console.error('Error fetching cart:', error);
+        alert('Failed to fetch cart items. Please try again later.');
+    });
+    
+        // Function to update quantity
+        function updateQuantity(productId, change) {
+            const quantityElement = document.getElementById(`quantity-${productId}`);
+            let currentQuantity = parseInt(quantityElement.textContent);
+    
+            // Update quantity based on the change
+            if (currentQuantity + change > 0) {
+                currentQuantity += change;
+                quantityElement.textContent = currentQuantity;
+    
+                // Send update to the server
+                fetch(`/update-cart`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ userId, productId, quantity: currentQuantity })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to update quantity');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Quantity updated:', data);
+                })
+                .catch(error => {
+                    console.error('Error updating quantity:', error);
+                    alert('Failed to update quantity. Please try again.');
+                });
+            } else {
+                // Optionally handle case where quantity would go to zero
+                alert('Quantity cannot be less than 1.');
+            }
+        }
+    
+        // Checkout function
+        function checkout() {
+    fetch(`/checkout/${userId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId }) // Include any additional data if needed
+    })
+    .then(response => {
+        if (response.ok) {
+            // Redirect to thank you page with user ID
+            window.location.href = `thankyou.html?id=${userId}`; // Pass user ID in the URL
+        } else {
+            alert('Failed to complete the purchase.');
+        }
+    })
+    .catch(error => {
+        console.error('Error during checkout:', error);
+        alert('An error occurred while processing your checkout. Please try again later.');
+    });
+}
+    </script>
+</body>
+</html>
+

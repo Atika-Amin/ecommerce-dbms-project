@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thank You - commMarket</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" href="thankyou.css"> <!-- Optional: Link to a CSS file for styling -->
+</head>
+<body>
+    <header>
+        <h1 class="logo">commMarket</h1>
+    </header>
+
+    <main>
+        <h1>Thank You for Your Purchase!</h1>
+        <p>We appreciate your business. Have a great day!</p>
+        <a href="homepage.html?id=" class="btn" id="go-home">Go to Homepage</a>
+        <br>
+        <a href="profile.html?id=" class="btn" id="go-profile">Go to Profile</a>
+    </main>
+
+    <footer>
+        <p>© 2024 commMarket. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Extract user ID from the URL query parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('id');
+
+        // Update the links with the user ID
+        if (userId) {
+            document.getElementById('go-home').href = `homepage.html?id=${userId}`;
+            document.getElementById('go-profile').href = `profile.html?id=${userId}`;
+        } else {
+            // If no user ID, redirect to login
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+</html>

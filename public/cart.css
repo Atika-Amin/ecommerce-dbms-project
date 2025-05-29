@@ -1,0 +1,145 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #84a98c;
+    color: #2f3e46;
+}
+
+main {
+    flex: 1 0 auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+#navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #2f3e46;
+    color: #cad2c5;
+}
+
+.logo {
+    font-size: 1.5rem;
+}
+
+.search-bar {
+    display: flex;
+    align-items: center;
+    width: 500px;
+}
+
+.search-input {
+    padding: 8px;
+    border: none;
+    border-radius: 5px 0 0 5px;
+}
+
+.search-btn {
+    padding: 8px;
+    height: 37px;
+    background-color: #cad2c5;
+    border: none;
+    border-radius: 0 5px 5px 0;
+    cursor: pointer;
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 15px;
+}
+
+.nav-links li a {
+    text-decoration: none;
+    color: #cad2c5;
+    padding: 5px 10px;
+}
+
+.nav-links li a:hover {
+    background-color: #cad2c5;
+    color: #2f3e46;
+    border-radius: 5px;
+}
+
+.cart-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 20px;
+}
+
+.cart-item {
+    background-color: #cad2c5;
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.cart-item img {
+    max-width: 100%;
+    border-radius: 5px;
+}
+
+.remove-btn {
+    background-color: #2f3e46;
+    color: #cad2c5;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.remove-btn:hover {
+    background-color: #354b50;
+}
+
+.cart-summary {
+    background-color: #2f3e46;
+    color: #cad2c5;
+    padding: 20px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.total {
+    font-size: 1.2rem;
+}
+
+.checkout-btn {
+    padding: 10px 20px;
+    background-color: #84a98c;
+    color: #2f3e46;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.checkout-btn:hover {
+    background-color: #cad2c5;
+}
+
+footer {
+    text-align: center;
+    padding: 10px;
+    background-color: #2f3e46;
+    color: #cad2c5;
+    flex-shrink: 0;
+}

@@ -1,0 +1,67 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    display: flex; /* Use flexbox for the body layout */
+    flex-direction: column; /* Arrange children in a column */
+    min-height: 100vh; 
+    background-color: #84a98c; /* Same background color as homepage */
+    color: #2f3e46; /* Same text color as homepage */
+}
+
+header {
+    background-color: #2f3e46; /* Same header color as homepage */
+    color: #cad2c5; /* Same text color as homepage */
+    padding: 10px 20px;
+    text-align: center;
+}
+
+main {
+    flex: 1 0 auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center content horizontally */
+}
+
+h1 {
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+p {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+}
+
+.btn {
+    padding: 10px 20px;
+    background-color: #2f3e46; /* Same button color as homepage */
+    color: #cad2c5; /* Same button text color as homepage */
+    border: none;
+    border-radius: 5px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    text-decoration: none; /* Remove underline for links */
+    transition: background-color 0.3s ease;
+}
+
+.btn:hover {
+    background-color: #354b50; /* Darker shade on hover */
+}
+
+footer {
+    text-align: center;
+    padding: 10px;
+    background-color: #2f3e46; /* Same footer color as homepage */
+    color: #cad2c5; /* Same footer text color as homepage */
+    flex-shrink: 0;
+}

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log In</title>
+    <link rel="stylesheet" href="login.css">
+</head>
+
+<body>
+
+    <div class="login-container">
+        <h2>Login to CommMarket</h2>
+        <form action="/login" method="post">
+            <div class="input-group">
+                <label for="emailinp">Email</label>
+                <input type="text" id="emailinp" name="emailinp" placeholder="Enter your email" required>
+            </div>
+            <div class="input-group">
+                <label for="passinp">Password</label>
+                <input type="password" id="passinp" name="passinp" placeholder="Enter your password" required>
+            </div>
+            <button type="submit" class="btn" id="loginbtn">Login</button>
+        </form>
+        <p>Don't have an account? <a href="signup.html">Sign up</a></p>
+    </div>
+</body>
+
+</html>
